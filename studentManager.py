@@ -227,6 +227,19 @@ def save():
         myFile.writerows(studentList)
 
 
+def openProgram():
+    global row
+    with open("StudentScores.csv", 'r', newline="") as file:
+        getStudents = csv.DictReader(file)
+        # TODO implement: Write code that will defend against header text showing up.
+        for item in getStudents:
+            studentList.append(item)
+            nameField(student=item, row=row)
+            matricNoField(student=item, row=row)
+            scoreField(student=item, row=row)
+            row += 1
+
+
 def mean():
     global row
     global meanScore
@@ -290,7 +303,6 @@ def onClicked():
         'matricNo': matricNo.get(),
         'score': score.get(),
     }
-
     studentList.append(student)
     meanLabel.destroy()
     bestStudentLabelText.destroy()
@@ -319,6 +331,7 @@ def compute():
 # User Interface
 
 
+openProgram()
 nameText = Label(second_frame, text="Name: ")
 nameText.grid(column=0, row=0)
 

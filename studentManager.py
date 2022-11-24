@@ -13,6 +13,7 @@ failedStudentsList = []
 bestStudentsList = []
 meanScore = 0
 row = 7
+fields = ['name', 'surname', 'matricNo', 'score']
 meanLabel = Label()
 bestStudentLabelText = Label()
 bestStudentLabel = Label()
@@ -219,10 +220,11 @@ def failedStudents():
                         row=row + 5)
 
 
-def save(fileList):
-    with open("StudentResult.csv", 'a', newline="") as file:
-        myFile = csv.writer(file)
-        myFile.writerow()
+def save():
+    with open("StudentScores.csv", 'a', newline="") as file:
+        myFile = csv.DictWriter(file, fieldnames=fields)
+        myFile.writeheader()
+        myFile.writerows(studentList)
 
 
 def mean():

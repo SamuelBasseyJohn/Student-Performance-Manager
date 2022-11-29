@@ -1,10 +1,12 @@
 from tkinter import *
 from tkinter import ttk
+from tkinter import filedialog
 import csv
+
 # Main Canvas Definition
 root = Tk()
 root.title('Student Manager')
-root.geometry('600x500')
+root.geometry('700x500')
 
 # Global Variables
 studentList = []
@@ -12,8 +14,9 @@ passStudentsList = []
 failedStudentsList = []
 bestStudentsList = []
 meanScore = 0
-row = 7
+row = 9
 fields = ['name', 'surname', 'matricNo', 'score']
+saveFileName = ""
 meanLabel = Label()
 bestStudentLabelText = Label()
 bestStudentLabel = Label()
@@ -52,8 +55,8 @@ second_frame = Frame(my_canvas)
 # Add that New frame To a Window In The Canvas
 my_canvas.create_window((0, 0), window=second_frame, anchor="nw")
 
-# Important Functions
 
+# Important Functions
 
 def nameField(student, row):
     global nameLabel
@@ -171,7 +174,7 @@ def allFailedStudents():
     scroll.pack(side=RIGHT, fill=Y)
     count: int = 0
     myList = Listbox(window, yscrollcommand=scroll.set)
-    for i in passStudentsList:
+    for i in failedStudentsList:
         myList.insert(END, f"{count+1}. {i}")
         count += 1
     myList.pack(side=LEFT, fill=BOTH)
@@ -221,7 +224,10 @@ def failedStudents():
 
 
 def save():
-    with open("StudentScores.csv", 'a', newline="") as file:
+    global saveFileName
+    if saveFileName == "":
+        saveFileName = fileName.get()
+    with open(f"{saveFileName}.csv", 'w', newline="") as file:
         myFile = csv.DictWriter(file, fieldnames=fields)
         myFile.writeheader()
         myFile.writerows(studentList)
@@ -229,7 +235,10 @@ def save():
 
 def openProgram():
     global row
-    with open("StudentScores.csv", 'r', newline="") as file:
+    global saveFileName
+    saveFileName = filedialog.askopenfilename(
+        initialdir='/', title="Open File", filetypes=(("all files", "*.csv"), ("executables", "*.exec")))
+    with open(saveFileName, 'r', newline="") as file:
         getStudents = csv.DictReader(file)
         # TODO implement: Write code that will defend against header text showing up.
         for item in getStudents:
@@ -290,6 +299,8 @@ def undo():
     passStudentLabelText.destroy()
     seeMorePassButton.destroy()
     seeMoreFailedButton.destroy()
+    failedStudentLabelText.destroy()
+    failedStudentLabel.destroy()
 
 
 def onClicked():
@@ -303,10 +314,18 @@ def onClicked():
         'matricNo': matricNo.get(),
         'score': score.get(),
     }
+
+    if (student["name"] == "" or student["matricNo"] == "" or student["score"] == "" or student["surname"] == ""):
+        return
+
     studentList.append(student)
     meanLabel.destroy()
     bestStudentLabelText.destroy()
     bestStudentLabel.destroy()
+    failedStudentLabel.destroy()
+    passStudentLabel.destroy()
+    passStudentLabelText.destroy()
+    failedStudentLabelText.destroy()
     seeMorePassButton.destroy()
     seeMoreFailedButton.destroy()
 
@@ -328,50 +347,64 @@ def compute():
     passStudents()
     failedStudents()
 
+
 # User Interface
+fileNameText = Label(second_frame, text="Enter FileName: ")
+fileNameText.grid(column=0, row=0)
 
+fileName = Entry(second_frame, width=20, )
+fileName.grid(column=1, row=0)
 
-openProgram()
+openFileText = Label(second_frame, text="OpenFile: ")
+openFileText.grid(column=2, row=0)
+
+openFile = Button(second_frame, width=10,
+                  text="Open File", command=openProgram)
+openFile.grid(column=3, row=0)
+
+whiteSpace0 = Label(second_frame, text=" ")
+whiteSpace0.grid(column=0, row=1)
+
 nameText = Label(second_frame, text="Name: ")
-nameText.grid(column=0, row=0)
+nameText.grid(column=0, row=2)
 
 name = Entry(second_frame, width=30)
-name.grid(column=1, row=0)
+name.grid(column=1, row=2)
 
 surnameText = Label(second_frame, text="Surname: ")
-surnameText.grid(column=0, row=1)
+surnameText.grid(column=0, row=3)
 
 surname = Entry(second_frame, width=30)
-surname.grid(column=1, row=1)
+surname.grid(column=1, row=3)
 
 matricNoText = Label(second_frame, text="MatricNo: ")
-matricNoText.grid(column=0, row=2)
+matricNoText.grid(column=0, row=4)
 
 matricNo = Entry(second_frame, width=30)
-matricNo.grid(column=1, row=2)
+matricNo.grid(column=1, row=4)
 
 scoreText = Label(second_frame, text="Score: ")
-scoreText.grid(column=0, row=3)
+scoreText.grid(column=0, row=5)
 
 score = Entry(second_frame, width=30)
-score.grid(column=1, row=3)
-
-whiteSpace1 = Label(second_frame, text=" ")
-whiteSpace1.grid(column=0, row=4)
-
-button1 = Button(second_frame, text="Compute", command=compute)
-button1.grid(column=0, row=5)
-
-button2 = Button(second_frame, text="Next", command=onClicked)
-button2.grid(column=1, row=5)
-
-button3 = Button(second_frame, text="Undo", command=undo)
-button3.grid(column=2, row=5)
-
-button4 = Button(second_frame, text="Save", command=save)
-button4.grid(column=3, row=5)
+score.grid(column=1, row=5)
 
 whiteSpace1 = Label(second_frame, text=" ")
 whiteSpace1.grid(column=0, row=6)
+
+button1 = Button(second_frame, text="Compute", command=compute)
+button1.grid(column=0, row=7)
+
+button2 = Button(second_frame, text="Next", command=onClicked)
+button2.grid(column=1, row=7)
+
+button3 = Button(second_frame, text="Undo", command=undo)
+button3.grid(column=2, row=7)
+
+button4 = Button(second_frame, text="Save", command=save)
+button4.grid(column=3, row=7)
+
+whiteSpace1 = Label(second_frame, text=" ")
+whiteSpace1.grid(column=0, row=8)
 
 root.mainloop()

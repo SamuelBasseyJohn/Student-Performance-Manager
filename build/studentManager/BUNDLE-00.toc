@@ -1,4 +1,0 @@
-([('studentManager',
-   '/Users/samuelbasseyjohn/Desktop/Group '
-   '17/Student-Performance-Manager/dist/studentManager',
-   'EXECUTABLE')],)

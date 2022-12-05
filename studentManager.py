@@ -2,6 +2,7 @@ from tkinter import *
 from tkinter import ttk
 from tkinter import filedialog
 import csv
+import os
 
 # Main Canvas Definition
 root = Tk()
@@ -9,6 +10,8 @@ root.title('Student Manager')
 root.geometry('700x500')
 
 # Global Variables
+directory = os.path.expanduser("~/Desktop/")
+labelList = []
 studentList = []
 passStudentsList = []
 failedStudentsList = []
@@ -29,6 +32,7 @@ failedStudentLabel = Label()
 failedStudentLabelText = Label()
 seeMorePassButton = Button()
 seeMoreFailedButton = Button()
+
 
 # ScrollBar Functionality
 # Create A Main Frame
@@ -63,6 +67,7 @@ def nameField(student, row):
     nameLabel = Label(
         second_frame, text=f"Name: {student['name']} {student['surname']}")
     nameLabel.grid(column=0, row=row)
+    labelList.append(nameLabel)
 
 
 def matricNoField(student, row):
@@ -70,6 +75,7 @@ def matricNoField(student, row):
     matricNoLabel = Label(
         second_frame, text=f"MatricNo: {student['matricNo']}")
     matricNoLabel.grid(column=1, row=row)
+    labelList.append(matricNoLabel)
 
 
 def scoreField(student, row):
@@ -77,6 +83,7 @@ def scoreField(student, row):
     scoreLabel = Label(
         second_frame, text=f"Score: {student['score']}")
     scoreLabel.grid(column=2, row=row)
+    labelList.append(scoreLabel)
 
 
 def meanScoreField(mean, row):
@@ -84,6 +91,7 @@ def meanScoreField(mean, row):
     meanLabel = Label(
         second_frame, text=f"MeanScore: {mean}")
     meanLabel.grid(column=0, row=row)
+    labelList.append(meanLabel)
 
 
 def bestStudentsField(bestStudents, maxScore, row):
@@ -227,7 +235,7 @@ def save():
     global saveFileName
     if saveFileName == "":
         saveFileName = fileName.get()
-    with open(f"{saveFileName}.csv", 'w', newline="") as file:
+    with open(os.path.expanduser(f"~/Desktop/{saveFileName}.csv"), 'w', newline="") as file:
         myFile = csv.DictWriter(file, fieldnames=fields)
         myFile.writeheader()
         myFile.writerows(studentList)
@@ -241,12 +249,19 @@ def openProgram():
     with open(saveFileName, 'r', newline="") as file:
         getStudents = csv.DictReader(file)
         # TODO implement: Write code that will defend against header text showing up.
+        clearAll()
         for item in getStudents:
+            studentList = []
             studentList.append(item)
             nameField(student=item, row=row)
             matricNoField(student=item, row=row)
             scoreField(student=item, row=row)
             row += 1
+
+
+def clearAll():
+    for label in labelList:
+        label.destroy()
 
 
 def mean():
@@ -286,7 +301,6 @@ def undo():
     global scoreLabel
     global bestStudentsList
     global passStudentsList
-
     bestStudentsList = []
     passStudentsList = []
     nameLabel.destroy()
@@ -403,6 +417,9 @@ button3.grid(column=2, row=7)
 
 button4 = Button(second_frame, text="Save", command=save)
 button4.grid(column=3, row=7)
+
+button4 = Button(second_frame, text="Clear all", command=clearAll)
+button4.grid(column=4, row=7)
 
 whiteSpace1 = Label(second_frame, text=" ")
 whiteSpace1.grid(column=0, row=8)

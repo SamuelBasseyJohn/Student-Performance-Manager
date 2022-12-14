@@ -7,20 +7,25 @@ import os
 # Main Canvas Definition
 root = Tk()
 root.title('Student Manager')
-root.geometry('700x500')
+root.geometry('800x600')
 
 # Global Variables
 directory = os.path.expanduser("~/Desktop/")
 labelList = []
+buttonList = []
 studentList = []
 passStudentsList = []
 failedStudentsList = []
 bestStudentsList = []
+highestScore = 0
+lowestScore = 0
 meanScore = 0
 row = 9
 fields = ['name', 'surname', 'matricNo', 'score']
 saveFileName = ""
 meanLabel = Label()
+highestScoreLabel = Label()
+lowestScoreLabel = Label()
 bestStudentLabelText = Label()
 bestStudentLabel = Label()
 nameLabel = Label()
@@ -94,6 +99,22 @@ def meanScoreField(mean, row):
     labelList.append(meanLabel)
 
 
+def highestScoreField(score, row):
+    global highestScoreLabel
+    highestScoreLabel = Label(
+        second_frame, text=f"Highest Score: {score}")
+    highestScoreLabel.grid(column=1, row=row)
+    labelList.append(highestScoreLabel)
+
+
+def lowestScoreField(score, row):
+    global lowestScoreLabel
+    lowestScoreLabel = Label(
+        second_frame, text=f"Lowest Score: {score}")
+    lowestScoreLabel.grid(column=2, row=row)
+    labelList.append(lowestScoreLabel)
+
+
 def bestStudentsField(bestStudents, maxScore, row):
     global bestStudentLabelText
     global bestStudentLabel
@@ -101,12 +122,15 @@ def bestStudentsField(bestStudents, maxScore, row):
     students = ""
     bestStudentLabelText = Label(
         second_frame, text="BestStudents:")
+    labelList.append(bestStudentLabelText)
     bestStudentLabelText.grid(column=0, row=row)
     for item in bestStudents:
         students = f"{students} {item}({maxScore})"
+
     bestStudentLabel = Label(
         second_frame, text=students)
     bestStudentLabel.grid(column=column, row=row)
+    labelList.append(bestStudentLabel)
 
 
 def passStudentsField(passStudents, row, column):
@@ -126,6 +150,8 @@ def passStudentsField(passStudents, row, column):
         second_frame, text=students)
     passStudentLabel.grid(column=column, row=row)
     seeMorePass(allPassStudents, column=column, row=row)
+    labelList.append(passStudentLabel)
+    labelList.append(passStudentLabelText)
 
 
 def failedStudentsField(failedStudents, row, column):
@@ -145,18 +171,24 @@ def failedStudentsField(failedStudents, row, column):
         second_frame, text=students)
     failedStudentLabel.grid(column=column, row=row)
     seeMoreFailed(allFailedStudents, column=column, row=row)
+    labelList.append(failedStudentLabel)
+    labelList.append(failedStudentLabelText)
 
 
 def seeMorePass(command, column, row):
     global seeMorePassButton
+    global buttonList
     seeMorePassButton = Button(second_frame, text="See all", command=command)
     seeMorePassButton.grid(column=column+1, row=row)
+    buttonList.append(seeMorePassButton)
 
 
 def seeMoreFailed(command, column, row):
     global seeMoreFailedButton
+    global buttonList
     seeMoreFailedButton = Button(second_frame, text="See all", command=command)
     seeMoreFailedButton.grid(column=column+1, row=row)
+    buttonList.append(seeMoreFailedButton)
 
 
 def allPassStudents():
@@ -177,7 +209,7 @@ def allPassStudents():
 def allFailedStudents():
     window = Toplevel()
     window.title('Students that Failed')
-    window.geometry('300x200')
+    window.geometry('400x200')
     scroll = Scrollbar(window)
     scroll.pack(side=RIGHT, fill=Y)
     count: int = 0
@@ -191,7 +223,7 @@ def allFailedStudents():
 
 def allBestStudents():
     window = Toplevel()
-    window.geometry('300x200')
+    window.geometry('400x200')
     frame = Frame(window)
     scroll = Scrollbar(frame)
     scroll.pack(side=RIGHT, fill=Y)
@@ -244,6 +276,7 @@ def save():
 def openProgram():
     global row
     global saveFileName
+
     saveFileName = filedialog.askopenfilename(
         initialdir='/', title="Open File", filetypes=(("all files", "*.csv"), ("executables", "*.exec")))
     with open(saveFileName, 'r', newline="") as file:
@@ -260,8 +293,19 @@ def openProgram():
 
 
 def clearAll():
+    global studentList
+    global bestStudentsList
+    global passStudentsList
+    global failedStudentsList
+
+    studentList = []
+    bestStudentsList = []
+    passStudentsList = []
+    failedStudentsList = []
     for label in labelList:
         label.destroy()
+    for button in buttonList:
+        button.destroy()
 
 
 def mean():
@@ -277,6 +321,31 @@ def mean():
     meanScoreField(mean=meanScore, row=row + 2)
 
 
+def highest():
+    global row
+    global highestScore
+    scores = []
+
+    for item in studentList:
+        studentScore = int(item['score'])
+        scores.append(studentScore)
+
+    highestScore = max(scores)
+    highestScoreField(score=highestScore, row=row+2)
+
+
+def lowest():
+    global row
+    global lowestScore
+    scores = []
+
+    for item in studentList:
+        studentScore = int(item['score'])
+        scores.append(studentScore)
+    lowestScore = min(scores)
+    lowestScoreField(score=lowestScore, row=row+2)
+
+
 def bestStudent():
     global row
     global studentList
@@ -287,6 +356,7 @@ def bestStudent():
         scores.append(studentScore)
 
     maxScore = max(scores)
+
     for item in studentList:
         intScore = int(item['score'])
         if (intScore == maxScore):
@@ -315,6 +385,8 @@ def undo():
     seeMoreFailedButton.destroy()
     failedStudentLabelText.destroy()
     failedStudentLabel.destroy()
+    highestScoreLabel.destroy()
+    lowestScoreLabel.destroy()
 
 
 def onClicked():
@@ -342,6 +414,8 @@ def onClicked():
     failedStudentLabelText.destroy()
     seeMorePassButton.destroy()
     seeMoreFailedButton.destroy()
+    highestScoreLabel.destroy()
+    lowestScoreLabel.destroy()
 
     name.delete(0, END)
     surname.delete(0, END)
@@ -359,6 +433,8 @@ def compute():
     mean()
     bestStudent()
     passStudents()
+    highest()
+    lowest()
     failedStudents()
 
 
@@ -409,7 +485,7 @@ whiteSpace1.grid(column=0, row=6)
 button1 = Button(second_frame, text="Compute", command=compute)
 button1.grid(column=0, row=7)
 
-button2 = Button(second_frame, text="Next", command=onClicked)
+button2 = Button(second_frame, text="Next Student", command=onClicked)
 button2.grid(column=1, row=7)
 
 button3 = Button(second_frame, text="Undo", command=undo)
